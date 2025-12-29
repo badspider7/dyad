@@ -236,5 +236,5 @@ export async function getNeonOrganizationId(): Promise<string> {
 
 export function getNeonErrorMessage(error: any): string {
   const detailedMessage = error.response?.data?.message ?? "";
-  return error.message + " " + detailedMessage;
+  return `${error.message} ${detailedMessage}`;
 }

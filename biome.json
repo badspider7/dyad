@@ -42,7 +42,8 @@
         "noExplicitAny": "off",
         "noFallthroughSwitchClause": "off",
         "noPrototypeBuiltins": "off",
-        "noArrayIndexKey": "off"
+        "noArrayIndexKey": "off",
+        "noDoubleEquals": "off"
       },
       "a11y": {
         "useButtonType": "off",
