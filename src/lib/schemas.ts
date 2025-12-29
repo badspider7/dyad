@@ -314,11 +314,13 @@ export const UserSettingsSchema = z.object({
 export type UserSettings = z.infer<typeof UserSettingsSchema>;
 
 export function isDyadProEnabled(settings: UserSettings): boolean {
-  return settings.enableDyadPro === true && hasDyadProKey(settings);
+  // 绕过pro验证，总是启用pro功能
+  return true;
 }
 
 export function hasDyadProKey(settings: UserSettings): boolean {
-  return !!settings.providerSettings?.auto?.apiKey?.value;
+  // 绕过pro验证，总是认为有pro key
+  return true;
 }
 
 export function isSupabaseConnected(settings: UserSettings | null): boolean {
@@ -327,16 +329,16 @@ export function isSupabaseConnected(settings: UserSettings | null): boolean {
   }
   return Boolean(
     settings.supabase?.accessToken ||
-      (settings.supabase?.organizations &&
-        Object.keys(settings.supabase.organizations).length > 0),
+    (settings.supabase?.organizations &&
+      Object.keys(settings.supabase.organizations).length > 0),
   );
 }
 
 export function isTurboEditsV2Enabled(settings: UserSettings): boolean {
   return Boolean(
     isDyadProEnabled(settings) &&
-      settings.enableProLazyEditsMode === true &&
-      settings.proLazyEditsMode === "v2",
+    settings.enableProLazyEditsMode === true &&
+    settings.proLazyEditsMode === "v2",
   );
 }
 

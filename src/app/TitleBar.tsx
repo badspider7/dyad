@@ -73,8 +73,9 @@ export const TitleBar = () => {
     }
   };
 
-  const isDyadPro = !!settings?.providerSettings?.auto?.apiKey?.value;
-  const isDyadProEnabled = Boolean(settings?.enableDyadPro);
+  // 绕过pro验证，总是认为有pro权限
+  const isDyadPro = true;
+  const isDyadProEnabled = true;
 
   return (
     <>
