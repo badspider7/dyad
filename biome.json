@@ -36,7 +36,8 @@
         "noNonNullAssertion": "off",
         "useImportType": "off",
         "useNodejsImportProtocol": "off",
-        "useSelfClosingElements": "off"
+        "useSelfClosingElements": "off",
+        "useTemplate": "off"
       },
       "suspicious": {
         "noExplicitAny": "off",

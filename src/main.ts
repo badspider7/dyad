@@ -24,10 +24,10 @@ import {
   AddPromptDataSchema,
   AddPromptPayload,
 } from "./ipc/deep_link_data";
-import {
-  startPerformanceMonitoring,
-  stopPerformanceMonitoring,
-} from "./utils/performance_monitor";
+// import {
+//   startPerformanceMonitoring,
+//   stopPerformanceMonitoring,
+// } from "./utils/performance_monitor";
 import { cleanupOldAiMessagesJson } from "./pro/main/ipc/handlers/local_agent/ai_messages_cleanup";
 import fs from "fs";
 
@@ -97,17 +97,17 @@ export async function onReady() {
     logger.warn("App was force-closed on previous run");
 
     // Store performance data to send after window is created
-    if (settings.lastKnownPerformance) {
-      logger.warn("Last known performance:", settings.lastKnownPerformance);
-      pendingForceCloseData = settings.lastKnownPerformance;
-    }
+    // if (settings.lastKnownPerformance) {
+    //   logger.warn("Last known performance:", settings.lastKnownPerformance);
+    //   pendingForceCloseData = settings.lastKnownPerformance;
+    // }
   }
 
   // Set isRunning to true at startup
   writeSettings({ isRunning: true });
 
   // Start performance monitoring
-  startPerformanceMonitoring();
+  // startPerformanceMonitoring();
 
   await onFirstRunMaybe(settings);
   createWindow();
@@ -212,7 +212,7 @@ const createWindow = () => {
   }
   if (process.env.NODE_ENV === "development") {
     // Open the DevTools.
-    mainWindow.webContents.on('devtools-opened', () => {
+    mainWindow.webContents.on("devtools-opened", () => {
       const css = `
         :root {
             --sys-color-base: var(--ref-palette-neutral100);
@@ -233,7 +233,7 @@ const createWindow = () => {
     `;
       mainWindow!.webContents?.devToolsWebContents?.executeJavaScript(`
         const overriddenStyle = document.createElement('style');
-        overriddenStyle.innerHTML = '${css.replace(/\n/g, ' ')}';
+        overriddenStyle.innerHTML = '${css.replace(/\n/g, " ")}';
         document.body.append(overriddenStyle);
         document.querySelectorAll('.platform-windows').forEach(el => el.classList.remove('platform-windows'));
         addStyleToAutoComplete();
@@ -508,7 +508,7 @@ app.on("will-quit", () => {
   logger.info("App is quitting, setting isRunning to false");
 
   // Stop performance monitoring and capture final metrics
-  stopPerformanceMonitoring();
+  // stopPerformanceMonitoring();
 
   writeSettings({ isRunning: false });
 });
