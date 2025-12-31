@@ -135,7 +135,7 @@ export function AppSidebar() {
                 setHoverState("clear-hover");
               }}
             />
-            <AppIcons onHoverChange={setHoverState} />
+            <AppIcons />
           </div>
           {/* Right Column: Chat List Section */}
           <div className="w-[240px]">
@@ -171,11 +171,7 @@ export function AppSidebar() {
   );
 }
 
-function AppIcons({
-  onHoverChange,
-}: {
-  onHoverChange: (state: HoverState) => void;
-}) {
+function AppIcons() {
   const routerState = useRouterState();
   const pathname = routerState.location.pathname;
 
@@ -203,17 +199,18 @@ function AppIcons({
                     className={`flex flex-col items-center gap-1 h-14 mb-2 rounded-2xl ${
                       isActive ? "bg-sidebar-accent" : ""
                     }`}
-                    onMouseEnter={() => {
-                      if (item.title === "Apps") {
-                        onHoverChange("start-hover:app");
-                      } else if (item.title === "Chat") {
-                        onHoverChange("start-hover:chat");
-                      } else if (item.title === "Settings") {
-                        onHoverChange("start-hover:settings");
-                      } else if (item.title === "Library") {
-                        onHoverChange("start-hover:library");
-                      }
-                    }}
+                    // TODO: 去掉 hover 预览菜单功能
+                    // onMouseEnter={() => {
+                    //   if (item.title === "Apps") {
+                    //     onHoverChange("start-hover:app");
+                    //   } else if (item.title === "Chat") {
+                    //     onHoverChange("start-hover:chat");
+                    //   } else if (item.title === "Settings") {
+                    //     onHoverChange("start-hover:settings");
+                    //   } else if (item.title === "Library") {
+                    //     onHoverChange("start-hover:library");
+                    //   }
+                    // }}
                   >
                     <div className="flex flex-col items-center gap-1">
                       <item.icon className="h-5 w-5" />

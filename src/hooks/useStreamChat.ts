@@ -24,7 +24,7 @@ import { useSearch } from "@tanstack/react-router";
 import { useRunApp } from "./useRunApp";
 import { useCountTokens } from "./useCountTokens";
 import { useUserBudgetInfo } from "./useUserBudgetInfo";
-import { usePostHog } from "posthog-js/react";
+// import { usePostHog } from "posthog-js/react";
 import { useCheckProblems } from "./useCheckProblems";
 import { useSettings } from "./useSettings";
 import { useQueryClient } from "@tanstack/react-query";
@@ -53,7 +53,7 @@ export function useStreamChat({
   const { checkProblems } = useCheckProblems(selectedAppId);
   const { settings } = useSettings();
   const setRecentStreamChatIds = useSetAtom(recentStreamChatIdsAtom);
-  const posthog = usePostHog();
+  // const posthog = usePostHog();
   const queryClient = useQueryClient();
   let chatId: number | undefined;
 
@@ -138,7 +138,7 @@ export function useStreamChat({
               showExtraFilesToast({
                 files: response.extraFiles,
                 error: response.extraFilesError,
-                posthog,
+                // posthog,
               });
             }
             // Use queryClient directly with the chatId parameter to avoid stale closure issues

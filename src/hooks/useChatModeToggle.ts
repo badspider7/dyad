@@ -1,12 +1,12 @@
 import { useCallback, useMemo } from "react";
 import { useSettings } from "./useSettings";
 import { useShortcut } from "./useShortcut";
-import { usePostHog } from "posthog-js/react";
+// import { usePostHog } from "posthog-js/react";
 import { ChatModeSchema } from "../lib/schemas";
 
 export function useChatModeToggle() {
   const { settings, updateSettings } = useSettings();
-  const posthog = usePostHog();
+  // const posthog = usePostHog();
 
   // Detect if user is on mac
   const isMac = useIsMac();
@@ -24,18 +24,17 @@ export function useChatModeToggle() {
   const toggleChatMode = useCallback(() => {
     if (!settings || !settings.selectedChatMode) return;
 
-    const currentMode = settings.selectedChatMode;
     const modes = ChatModeSchema.options;
     const currentIndex = modes.indexOf(settings.selectedChatMode);
     const newMode = modes[(currentIndex + 1) % modes.length];
 
     updateSettings({ selectedChatMode: newMode });
-    posthog.capture("chat:mode_toggle", {
-      from: currentMode,
-      to: newMode,
-      trigger: "keyboard_shortcut",
-    });
-  }, [settings, updateSettings, posthog]);
+    // posthog.capture("chat:mode_toggle", {
+    //   from: currentMode,
+    //   to: newMode,
+    //   trigger: "keyboard_shortcut",
+    // });
+  }, [settings, updateSettings /* posthog */]);
 
   // Add keyboard shortcut with memoized modifiers
   useShortcut(

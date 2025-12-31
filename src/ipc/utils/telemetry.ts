@@ -7,6 +7,7 @@ const logger = log.scope("telemetry");
 /**
  * Sends a telemetry event from the main process to the renderer,
  * where PostHog can capture it.
+ * (PostHog functionality is currently disabled)
  */
 export function sendTelemetryEvent(
   eventName: string,

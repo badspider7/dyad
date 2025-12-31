@@ -988,6 +988,7 @@ export class IpcClient {
   /**
    * Subscribe to telemetry events from the main process.
    * Used to forward events to PostHog in the renderer.
+   * (PostHog functionality is currently disabled)
    * @returns Unsubscribe function
    */
   public onTelemetryEvent(
