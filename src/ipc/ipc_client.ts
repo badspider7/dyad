@@ -424,7 +424,9 @@ export class IpcClient {
     });
   }
 
-  // New method for streaming responses
+  // ========== 步骤3: IPC客户端层 - 跨进程通信 ==========
+  // 此方法封装了从渲染进程到主进程的IPC调用
+  // 处理消息流、文件附件和回调管理
   public streamMessage(
     prompt: string,
     options: {
@@ -447,11 +449,12 @@ export class IpcClient {
       onEnd,
       onError,
     } = options;
+    // 存储回调函数，用于处理主进程返回的事件
     this.chatStreams.set(chatId, { onUpdate, onEnd, onError });
 
-    // Handle file attachments if provided
+    // 处理文件附件（如果有）
     if (attachments && attachments.length > 0) {
-      // Process each file attachment and convert to base64
+      // 将每个文件附件转换为base64编码，准备发送到主进程
       Promise.all(
         attachments.map(async (attachment) => {
           return new Promise<{
@@ -499,7 +502,7 @@ export class IpcClient {
           this.chatStreams.delete(chatId);
         });
     } else {
-      // No attachments, proceed normally
+      // 没有附件，直接发送消息到主进程
       this.ipcRenderer
         .invoke("chat:stream", {
           prompt,

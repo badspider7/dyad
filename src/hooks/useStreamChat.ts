@@ -63,6 +63,8 @@ export function useStreamChat({
   }
   const { invalidateTokenCount } = useCountTokens(chatId ?? null, "");
 
+  // ========== 步骤2: React Hook层 - 准备流式请求 ==========
+  // 这个Hook封装了流式聊天的核心逻辑
   const streamMessage = useCallback(
     async ({
       prompt,
@@ -105,12 +107,14 @@ export function useStreamChat({
 
       let hasIncrementedStreamCount = false;
       try {
+        // ========== 步骤3: 调用IPC客户端进行跨进程通信 ==========
         IpcClient.getInstance().streamMessage(prompt, {
           selectedComponents: selectedComponents ?? [],
           chatId,
           redo,
           attachments,
           onUpdate: (updatedMessages: Message[]) => {
+            // 处理主进程返回的消息更新
             if (!hasIncrementedStreamCount) {
               setStreamCountById((prev) => {
                 const next = new Map(prev);
@@ -127,6 +131,7 @@ export function useStreamChat({
             });
           },
           onEnd: (response: ChatResponseEnd) => {
+            // 处理流结束事件
             if (response.updatedFiles) {
               setIsPreviewOpen(true);
               refreshAppIframe();
@@ -159,6 +164,7 @@ export function useStreamChat({
             onSettled?.();
           },
           onError: (errorMessage: string) => {
+            // 处理流错误事件
             console.error(`[CHAT] Stream error for ${chatId}:`, errorMessage);
             setErrorById((prev) => {
               const next = new Map(prev);

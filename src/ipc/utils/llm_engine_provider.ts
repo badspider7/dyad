@@ -101,6 +101,10 @@ export function createDyadEngine(
     headers: getHeaders,
     fetch: options.fetch,
   });
+  logger.info(
+    "===============getCommonModelConfig==========",
+    getCommonModelConfig(),
+  );
 
   const createChatModel = (modelId: ExampleChatModelId) => {
     // Create configuration with file handling

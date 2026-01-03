@@ -220,16 +220,18 @@ async function processStreamChunks({
 }
 
 export function registerChatStreamHandlers() {
+  // ========== 步骤5: 主进程层 - 注册IPC处理器 ==========
+  // 注册"chat:stream"通道的处理器，接收来自渲染进程的请求
   ipcMain.handle("chat:stream", async (event, req: ChatStreamParams) => {
     let attachmentPaths: string[] = [];
     try {
       const fileUploadsState = FileUploadsState.getInstance();
       let dyadRequestId: string | undefined;
-      // Create an AbortController for this stream
+      // 创建AbortController用于取消流
       const abortController = new AbortController();
       activeStreams.set(req.chatId, abortController);
 
-      // Get the chat to check for existing messages
+      // 获取聊天信息，包括历史消息和App信息
       const chat = await db.query.chats.findFirst({
         where: eq(chats.id, req.chatId),
         with: {
@@ -398,6 +400,8 @@ ${componentSnippet}
         }
       }
 
+      // ========== 步骤5.4: 插入用户消息到数据库 ==========
+      // 将用户输入保存到数据库
       const [insertedUserMessage] = await db
         .insert(messages)
         .values({
@@ -414,13 +418,14 @@ ${componentSnippet}
         dyadRequestId = uuidv4();
       }
 
-      // Add a placeholder assistant message immediately
+      // ========== 步骤5.5: 插入占位的助手消息 ==========
+      // 立即插入一个空的助手消息，用于流式更新
       const [placeholderAssistantMessage] = await db
         .insert(messages)
         .values({
           chatId: req.chatId,
           role: "assistant",
-          content: "", // Start with empty content
+          content: "", // 初始为空，后续流式更新
           requestId: dyadRequestId,
           model: settings.selectedModel.name,
           sourceCommitHash: await getCurrentCommitHash({
@@ -466,7 +471,8 @@ ${componentSnippet}
           updatedChat,
         );
       } else {
-        // Normal AI processing for non-test prompts
+        // ========== 步骤5.6: 获取模型客户端 ==========
+        // 根据选择的模型配置获取AI模型客户端（可能是Dyad Engine或直接连接）
         const { modelClient, isEngineEnabled, isSmartContextEnabled } =
           await getModelClient(settings.selectedModel, settings);
 
@@ -488,7 +494,8 @@ ${componentSnippet}
               }
             : validateChatContext(updatedChat.app.chatContext);
 
-        // Extract codebase for current app
+        // ========== 步骤5.7: 提取代码库上下文 ==========
+        // 从文件系统中提取代码库信息，用于提供给AI作为上下文
         const { formattedOutput: codebaseInfo, files } = await extractCodebase({
           appPath,
           chatContext,
@@ -554,7 +561,8 @@ ${componentSnippet}
           codebaseInfo.length / 4,
         );
 
-        // Prepare message history for the AI
+        // ========== 步骤5.8: 准备消息历史 ==========
+        // 格式化消息历史，准备发送给AI
         const messageHistory = updatedChat.messages.map((message) => ({
           role: message.role as "user" | "assistant" | "system",
           content: message.content,
@@ -829,6 +837,8 @@ This conversation includes one or more image attachments. When the user uploads 
             } satisfies ModelMessage,
           ];
         }
+        // ========== 步骤5.9: 构建流式文本生成函数 ==========
+        // 这个函数负责调用AI SDK发送请求到AI提供商
         const simpleStreamText = async ({
           chatMessages,
           modelClient,
@@ -844,6 +854,7 @@ This conversation includes one or more image attachments. When the user uploads 
           systemPromptOverride?: string;
           dyadDisableFiles?: boolean;
         }) => {
+          // 日志记录
           if (isEngineEnabled) {
             logger.log(
               "sending AI request to engine with request id:",
@@ -863,6 +874,9 @@ This conversation includes one or more image attachments. When the user uploads 
           const smartContextMode: SmartContextMode = isDeepContextEnabled
             ? "deep"
             : "balanced";
+
+          // ========== 步骤7: 获取提供商选项 ==========
+          // 构建特定于提供商的配置选项（provider_options.ts）
           const providerOptions = getProviderOptions({
             dyadAppId: updatedChat.app.id,
             dyadRequestId,
@@ -875,7 +889,11 @@ This conversation includes one or more image attachments. When the user uploads 
             settings,
           });
 
+          // ========== 步骤8: 调用Vercel AI SDK发送流式请求 ==========
+          // 使用streamText函数发送请求到AI提供商（OpenAI/Anthropic/Google等）
+          //TODO: 调用 模型 提供方的 接口
           const streamResult = streamText({
+            // 获取AI请求头（provider_options.ts中的getAiHeaders函数）
             headers: getAiHeaders({
               builtinProviderId: modelClient.builtinProviderId,
             }),
@@ -938,6 +956,7 @@ This conversation includes one or more image attachments. When the user uploads 
             },
             abortSignal: abortController.signal,
           });
+          logger.info("=======usage=======", streamResult.usage);
           return {
             fullStream: streamResult.fullStream,
             usage: streamResult.usage,
@@ -1051,14 +1070,16 @@ This conversation includes one or more image attachments. When the user uploads 
           });
         }
 
-        // When calling streamText, the messages need to be properly formatted for mixed content
+        // ========== 步骤5.10: 调用流式文本生成 ==========
+        // 调用上面定义的simpleStreamText函数
         const { fullStream } = await simpleStreamText({
           chatMessages,
           modelClient,
           files: files,
         });
 
-        // Process the stream as before
+        // ========== 步骤5.11: 处理流式响应 ==========
+        // 处理从AI返回的流式数据块
         try {
           const result = await processStreamChunks({
             fullStream,
@@ -1115,13 +1136,13 @@ This conversation includes one or more image attachments. When the user uploads 
 
               const fixSearchReplacePrompt =
                 searchReplaceFixAttempts === 0
-                  ? `There was an issue with the following \`dyad-search-replace\` tags. Make sure you use \`dyad-read\` to read the latest version of the file and then trying to do search & replace again.`
-                  : `There was an issue with the following \`dyad-search-replace\` tags. Please fix the errors by generating the code changes using \`dyad-write\` tags instead.`;
+                  ? "There was an issue with the following `dyad-search-replace` tags. Make sure you use `dyad-read` to read the latest version of the file and then trying to do search & replace again."
+                  : "There was an issue with the following `dyad-search-replace` tags. Please fix the errors by generating the code changes using `dyad-write` tags instead.";
               searchReplaceFixAttempts++;
               const userPrompt = {
                 role: "user",
                 content: `${fixSearchReplacePrompt}
-                
+
 ${formattedSearchReplaceIssues}`,
               } as const;
 

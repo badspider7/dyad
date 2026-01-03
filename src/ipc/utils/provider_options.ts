@@ -38,6 +38,7 @@ export function getProviderOptions({
   settings,
 }: GetProviderOptionsParams): Record<string, any> {
   const providerOptions: Record<string, any> = {
+    // Dyad Engine专用选项 - 包含应用ID、请求ID、文件上下文等
     "dyad-engine": {
       dyadAppId,
       dyadRequestId,
@@ -50,13 +51,15 @@ export function getProviderOptions({
         files,
       })),
     },
+    // Dyad Gateway选项 - 额外的提供商特定配置
     "dyad-gateway": getExtraProviderOptions(builtinProviderId, settings),
+    // OpenAI特定选项
     openai: {
       reasoningSummary: "auto",
     } satisfies OpenAIResponsesProviderOptions,
   };
 
-  // Conditionally include Google thinking config only for supported models
+  // 仅对支持的模型有条件地包含Google thinking配置
   const selectedModelName = settings.selectedModel.name || "";
   const providerId = builtinProviderId;
   const isVertex = providerId === "vertex";
@@ -65,7 +68,7 @@ export function getProviderOptions({
   const isGeminiModel = selectedModelName.startsWith("gemini");
   const isFlashLite = selectedModelName.includes("flash-lite");
 
-  // Keep Google provider behavior unchanged: always include includeThoughts
+  // 保持Google提供商行为不变：始终包含includeThoughts
   if (isGoogle) {
     providerOptions.google = {
       thinkingConfig: {
@@ -74,7 +77,7 @@ export function getProviderOptions({
     } satisfies GoogleGenerativeAIProviderOptions;
   }
 
-  // Vertex-specific fix: only enable thinking on supported Gemini models
+  // Vertex特定修复：仅在支持的Gemini模型上启用thinking
   if (isVertex && isGeminiModel && !isFlashLite && !isPartnerModel) {
     providerOptions.google = {
       thinkingConfig: {

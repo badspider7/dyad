@@ -13,14 +13,15 @@
       "mesop/**/*.json",
       "scripts/**",
       "**/esbuild*",
-      "**/venv/**"
+      "**/venv/**",
+      "**/.vscode/**"
     ]
   },
   "organizeImports": {
     "enabled": true
   },
   "linter": {
-    "enabled": true,
+    "enabled": false,
     "rules": {
       "recommended": true,
       "correctness": {

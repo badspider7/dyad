@@ -53,6 +53,10 @@ export interface ModelClient {
 }
 
 const logger = log.scope("getModelClient");
+
+// ========== 步骤6: 模型客户端层 - 获取AI模型 ==========
+// 此函数根据用户选择的模型配置返回相应的模型客户端
+// 可能返回Dyad Engine客户端或直接连接到AI提供商
 export async function getModelClient(
   model: LargeLanguageModel,
   settings: UserSettings,
@@ -73,14 +77,13 @@ export async function getModelClient(
     throw new Error(`Configuration not found for provider: ${model.provider}`);
   }
 
-  // Handle Dyad Pro override
+  // 检查是否使用Dyad Pro（通过Dyad Engine）
   if (dyadApiKey && settings.enableDyadPro) {
-    // Check if the selected provider supports Dyad Pro (has a gateway prefix) OR
-    // we're using local engine.
-    // IMPORTANT: some providers like OpenAI have an empty string gateway prefix,
-    // so we do a nullish and not a truthy check here.
+    // 检查选择的提供商是否支持Dyad Pro（有gateway前缀）或使用本地engine
+    // 注意：某些提供商（如OpenAI）的gateway前缀是空字符串，所以这里检查null而不是truthy
     if (providerConfig.gatewayPrefix != null || dyadEngineUrl) {
       const enableSmartFilesContext = settings.enableProSmartFilesContextMode;
+      // 创建Dyad Engine提供商
       const provider = createDyadEngine({
         apiKey: dyadApiKey,
         baseURL: dyadEngineUrl ?? "https://engine.dyad.sh/v1",
@@ -105,23 +108,26 @@ export async function getModelClient(
         `\x1b[1;30;42m Using Dyad Pro engine: ${dyadEngineUrl ?? "<prod>"} \x1b[0m`,
       );
 
-      // Do not use free variant (for openrouter).
+      // 不使用免费变体（针对OpenRouter）
       const modelName = model.name.split(":free")[0];
       const autoModelClient = {
         model: provider(`${providerConfig.gatewayPrefix || ""}${modelName}`),
         builtinProviderId: model.provider,
       };
 
+      // 返回Dyad Engine模型客户端
       return {
         modelClient: autoModelClient,
         isEngineEnabled: true,
         isSmartContextEnabled: enableSmartFilesContext,
       };
     } else {
+      // Dyad Pro已启用，但提供商没有定义gateway前缀
+      // 回退到直接连接提供商
       logger.warn(
         `Dyad Pro enabled, but provider ${model.provider} does not have a gateway prefix defined. Falling back to direct provider connection.`,
       );
-      // Fall through to regular provider logic if gateway prefix is missing
+      // 如果缺少gateway前缀，回退到常规提供商逻辑
     }
   }
   // Handle 'auto' provider by trying each model in AUTO_MODELS until one works
@@ -182,6 +188,7 @@ export async function getModelClient(
   return getRegularModelClient(model, settings, providerConfig);
 }
 
+// 获取常规模型客户端（直接连接到AI提供商）
 function getRegularModelClient(
   model: LargeLanguageModel,
   settings: UserSettings,
@@ -190,7 +197,7 @@ function getRegularModelClient(
   modelClient: ModelClient;
   backupModelClients: ModelClient[];
 } {
-  // Get API key for the specific provider
+  // 获取特定提供商的API密钥
   const apiKey =
     settings.providerSettings?.[model.provider]?.apiKey?.value ||
     (providerConfig.envVarName
@@ -198,13 +205,13 @@ function getRegularModelClient(
       : undefined);
 
   const providerId = providerConfig.id;
-  // Create client based on provider ID or type
+  // 根据提供商ID或类型创建客户端
   switch (providerId) {
     case "openai": {
       const provider = createOpenAI({ apiKey });
       return {
         modelClient: {
-          model: provider.responses(model.name),
+          model: provider.responses(model.name), // 使用responses API
           builtinProviderId: providerId,
         },
         backupModelClients: [],
@@ -402,6 +409,37 @@ function getRegularModelClient(
           name: providerConfig.id,
           baseURL: providerConfig.apiBaseUrl,
           apiKey,
+          // fetch: async (url, options) => {
+          //   // 记录请求详情
+          //   logger.log(`[Custom Provider Request]`, {
+          //     url: url,
+          //     method: options?.method || 'GET',
+          //     headers: options?.headers,
+          //     bodyPreview: options?.body ? options.body.toString().substring(0, 500) + '...' : undefined,
+          //   });
+          //   try {
+          //     const response = await fetch(url, options);
+          //     logger.log(`[Custom Provider Response]`, {
+          //       status: response.status,
+          //       statusText: response.statusText,
+          //       headers: Object.fromEntries(response.headers.entries()),
+          //     });
+
+          //     // 尝试读取响应体（如果不是流式响应）
+          //     const clonedResponse = response.clone();
+          //     try {
+          //       const text = await clonedResponse.text();
+          //       logger.log(`[Custom Provider Response Body]`, text.substring(0, 1000));
+          //     } catch (e) {
+          //       logger.log(`[Custom Provider Response Body] Unable to read (streaming response)`);
+          //     }
+
+          //     return response;
+          //   } catch (error) {
+          //     logger.error(`[Custom Provider Error]`, error);
+          //     throw error;
+          //   }
+          // },
         });
         return {
           modelClient: {

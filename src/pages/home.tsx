@@ -115,6 +115,7 @@ export default function HomePage() {
     }
   }, [appId, navigate]);
 
+  // TODO:[注释]：发送消息入口函数
   const handleSubmit = async (options?: HomeSubmitOptions) => {
     const attachments = options?.attachments || [];
 
@@ -136,11 +137,12 @@ export default function HomePage() {
         });
       }
 
-      // Stream the message with attachments
+      // ========== 步骤2: 调用React Hook准备流式请求 ==========
+      // 流式发送消息到AI，包含用户输入和附件
       streamMessage({
-        prompt: inputValue,
-        chatId: result.chatId,
-        attachments,
+        prompt: inputValue, // 用户输入的文本
+        chatId: result.chatId, // 聊天会话ID
+        attachments, // 附件（如果有）
       });
       await new Promise((resolve) =>
         setTimeout(resolve, settings?.isTestMode ? 0 : 2000),

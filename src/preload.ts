@@ -3,7 +3,9 @@
 
 import { contextBridge, ipcRenderer, webFrame } from "electron";
 
-// Whitelist of valid channels
+// ========== 步骤4: 预加载层 - IPC白名单验证 ==========
+// IPC白名单 - 定义允许的IPC通道
+// 只有在这里列出的通道才能从渲染进程调用主进程
 const validInvokeChannels = [
   "analyze-component",
   "apply-visual-editing-changes",
