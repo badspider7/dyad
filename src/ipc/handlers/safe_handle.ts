@@ -14,7 +14,7 @@ export function createLoggedHandler(logger: log.LogFunctions) {
         try {
           const result = await fn(event, ...args);
           logger.log(
-            `IPC: ${channel} returned: ${JSON.stringify(result)?.slice(0, 100)}...`,
+            `IPC: ${channel} returned: ${JSON.stringify(result)?.slice(0, 200)}...`,
           );
           return result;
         } catch (error) {
@@ -32,7 +32,7 @@ export function createLoggedHandler(logger: log.LogFunctions) {
 export function createTestOnlyLoggedHandler(logger: log.LogFunctions) {
   if (!IS_TEST_BUILD) {
     // Returns a no-op function for non-e2e test builds.
-    return () => {};
+    return () => { };
   }
   return createLoggedHandler(logger);
 }

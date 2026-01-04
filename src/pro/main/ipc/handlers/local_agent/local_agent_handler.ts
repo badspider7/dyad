@@ -191,6 +191,13 @@ export async function handleLocalAgentStream(
       .filter((msg) => msg.content || msg.aiMessagesJson)
       .flatMap((msg) => parseAiMessagesJson(msg));
 
+    // 打印发送给大模型的所有内容
+    logger.log("========== 发送给大模型的内容 ==========");
+    logger.log("System Prompt:", systemPrompt);
+    logger.log("Tools:", JSON.stringify(allTools, null, 2));
+    logger.log("Messages:", JSON.stringify(messageHistory, null, 2));
+    logger.log("=========================================");
+
     // Stream the response
     const streamResult = streamText({
       model: modelClient.model,
@@ -227,6 +234,16 @@ export async function handleLocalAgentStream(
           "Cache hit ratio:",
           cachedInputTokens ? (cachedInputTokens ?? 0) / (inputTokens ?? 0) : 0,
         );
+
+        // 打印大模型返回的完整响应
+        const responseText = await response.text;
+        logger.log("========== 大模型返回的完整响应 ==========");
+        logger.log("Response Text:", responseText);
+        logger.log("Response Finish Reason:", response.finishReason);
+        logger.log("Response Usage:", response.usage);
+        logger.log("Response:", JSON.stringify(response, null, 2));
+        logger.log("============================================");
+
         if (typeof totalTokens === "number") {
           await db
             .update(messages)

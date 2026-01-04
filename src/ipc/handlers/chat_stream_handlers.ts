@@ -473,8 +473,10 @@ ${componentSnippet}
       } else {
         // ========== 步骤5.6: 获取模型客户端 ==========
         // 根据选择的模型配置获取AI模型客户端（可能是Dyad Engine或直接连接）
-        const { modelClient, isEngineEnabled, isSmartContextEnabled } =
+        const { modelClient, isEngineEnabled } =
           await getModelClient(settings.selectedModel, settings);
+
+        const isSmartContextEnabled = true;
 
         const appPath = getDyadAppPath(updatedChat.app.path);
         // When we don't have smart context enabled, we
@@ -484,14 +486,13 @@ ${componentSnippet}
         // we handle this specially below.
         const chatContext =
           req.selectedComponents &&
-          req.selectedComponents.length > 0 &&
-          !isSmartContextEnabled
+            req.selectedComponents.length > 0
             ? {
-                contextPaths: req.selectedComponents.map((component) => ({
-                  globPath: component.relativePath,
-                })),
-                smartContextAutoIncludes: [],
-              }
+              contextPaths: req.selectedComponents.map((component) => ({
+                globPath: component.relativePath,
+              })),
+              smartContextAutoIncludes: [],
+            }
             : validateChatContext(updatedChat.app.chatContext);
 
         // ========== 步骤5.7: 提取代码库上下文 ==========
@@ -616,6 +617,7 @@ ${componentSnippet}
 
         const aiRules = await readAiRules(getDyadAppPath(updatedChat.app.path));
 
+        // SYSTEM PROMPT BUILD
         let systemPrompt = constructSystemPrompt({
           aiRules,
           chatMode:
@@ -624,6 +626,8 @@ ${componentSnippet}
               : settings.selectedChatMode,
           enableTurboEditsV2: isTurboEditsV2Enabled(settings),
         });
+
+        logger.debug("chatMode", settings.selectedChatMode);
 
         // Add information about mentioned apps if any
         if (otherAppsCodebaseInfo) {
@@ -668,10 +672,10 @@ ${componentSnippet}
             (settings.selectedChatMode === "local-agent"
               ? ""
               : await getSupabaseContext({
-                  supabaseProjectId: updatedChat.app.supabaseProjectId,
-                  organizationSlug:
-                    updatedChat.app.supabaseOrganizationSlug ?? null,
-                }));
+                supabaseProjectId: updatedChat.app.supabaseProjectId,
+                organizationSlug:
+                  updatedChat.app.supabaseOrganizationSlug ?? null,
+              }));
         } else if (
           // Neon projects don't need Supabase.
           !updatedChat.app?.neonProjectId &&
@@ -736,32 +740,32 @@ This conversation includes one or more image attachments. When the user uploads 
 
         const codebasePrefix = isEngineEnabled
           ? // No codebase prefix if engine is set, we will take of it there.
-            []
+          []
           : ([
-              {
-                role: "user",
-                content: createCodebasePrompt(codebaseInfo),
-              },
-              {
-                role: "assistant",
-                content: "OK, got it. I'm ready to help",
-              },
-            ] as const);
+            {
+              role: "user",
+              content: createCodebasePrompt(codebaseInfo),
+            },
+            {
+              role: "assistant",
+              content: "OK, got it. I'm ready to help",
+            },
+          ] as const);
 
         // If engine is enabled, we will send the other apps codebase info to the engine
         // and process it with smart context.
         const otherCodebasePrefix =
           otherAppsCodebaseInfo && !isEngineEnabled
             ? ([
-                {
-                  role: "user",
-                  content: createOtherAppsCodebasePrompt(otherAppsCodebaseInfo),
-                },
-                {
-                  role: "assistant",
-                  content: "OK.",
-                },
-              ] as const)
+              {
+                role: "user",
+                content: createOtherAppsCodebasePrompt(otherAppsCodebaseInfo),
+              },
+              {
+                role: "assistant",
+                content: "OK.",
+              },
+            ] as const)
             : [];
 
         const limitedHistoryChatMessages = limitedMessageHistory.map((msg) => ({
@@ -861,7 +865,7 @@ This conversation includes one or more image attachments. When the user uploads 
               dyadRequestId,
             );
           } else {
-            logger.log("sending AI request");
+            logger.log("发送消息");
           }
           let versionedFiles: VersionedFiles | undefined;
           if (isDeepContextEnabled) {
@@ -956,7 +960,6 @@ This conversation includes one or more image attachments. When the user uploads 
             },
             abortSignal: abortController.signal,
           });
-          logger.info("=======usage=======", streamResult.usage);
           return {
             fullStream: streamResult.fullStream,
             usage: streamResult.usage,
@@ -1257,11 +1260,11 @@ ${formattedSearchReplaceIssues}`,
               ) {
                 fullResponse += `<dyad-problem-report summary="${problemReport.problems.length} problems">
 ${problemReport.problems
-  .map(
-    (problem) =>
-      `<problem file="${escapeXml(problem.file)}" line="${problem.line}" column="${problem.column}" code="${problem.code}">${escapeXml(problem.message)}</problem>`,
-  )
-  .join("\n")}
+                    .map(
+                      (problem) =>
+                        `<problem file="${escapeXml(problem.file)}" line="${problem.line}" column="${problem.column}" code="${problem.code}">${escapeXml(problem.message)}</problem>`,
+                    )
+                    .join("\n")}
 </dyad-problem-report>`;
 
                 logger.info(
@@ -1518,7 +1521,7 @@ ${problemReport.problems
     // Clean up uploads state for this chat
     try {
       FileUploadsState.getInstance().clear(chatId);
-    } catch {}
+    } catch { }
 
     return true;
   });

@@ -49,7 +49,7 @@ export function useStreamChat({
   const setStreamCountById = useSetAtom(chatStreamCountByIdAtom);
   const { refreshVersions } = useVersions(selectedAppId);
   const { refreshAppIframe } = useRunApp();
-  const { refetchUserBudget } = useUserBudgetInfo();
+  
   const { checkProblems } = useCheckProblems(selectedAppId);
   const { settings } = useSettings();
   const setRecentStreamChatIds = useSetAtom(recentStreamChatIdsAtom);
@@ -62,7 +62,6 @@ export function useStreamChat({
     chatId = id;
   }
   const { invalidateTokenCount } = useCountTokens(chatId ?? null, "");
-
   // ========== 步骤2: React Hook层 - 准备流式请求 ==========
   // 这个Hook封装了流式聊天的核心逻辑
   const streamMessage = useCallback(
@@ -149,7 +148,7 @@ export function useStreamChat({
             // Use queryClient directly with the chatId parameter to avoid stale closure issues
             queryClient.invalidateQueries({ queryKey: ["proposal", chatId] });
 
-            refetchUserBudget();
+            // refetchUserBudget();
 
             // Keep the same as below
             setIsStreamingById((prev) => {
@@ -210,7 +209,7 @@ export function useStreamChat({
       setIsPreviewOpen,
       checkProblems,
       selectedAppId,
-      refetchUserBudget,
+      // refetchUserBudget,
       settings,
       queryClient,
     ],

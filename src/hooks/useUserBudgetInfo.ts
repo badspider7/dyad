@@ -2,7 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { IpcClient } from "@/ipc/ipc_client";
 import type { UserBudgetInfo } from "@/ipc/ipc_types";
 
-const FIVE_MINUTES_IN_MS = 5 * 60 * 1000;
+const FIVE_MINUTES_IN_MS = 5000 * 60 * 1000;
 
 export function useUserBudgetInfo() {
   const queryKey = ["userBudgetInfo"];
@@ -14,8 +14,9 @@ export function useUserBudgetInfo() {
   >({
     queryKey: queryKey,
     queryFn: async () => {
-      const ipcClient = IpcClient.getInstance();
-      return ipcClient.getUserBudget();
+      // const ipcClient = IpcClient.getInstance();
+      // return ipcClient.getUserBudget();
+      return null;
     },
     // This data is not critical and can be stale for a bit
     staleTime: FIVE_MINUTES_IN_MS,

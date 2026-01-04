@@ -19,14 +19,14 @@ import log from "electron-log";
 import { FREE_OPENROUTER_MODEL_NAMES } from "../shared/language_model_constants";
 import { getLanguageModelProviders } from "../shared/language_model_helpers";
 import { LanguageModelProvider } from "../ipc_types";
-import { createDyadEngine } from "./llm_engine_provider";
+
 
 import { LM_STUDIO_BASE_URL } from "./lm_studio_utils";
 import { createOllamaProvider } from "./ollama_provider";
 import { getOllamaApiUrl } from "../handlers/local_model_ollama_handler";
 import { createFallback } from "./fallback_ai_model";
 
-const dyadEngineUrl = process.env.DYAD_ENGINE_URL;
+
 
 const AUTO_MODELS = [
   {
@@ -68,7 +68,7 @@ export async function getModelClient(
 }> {
   const allProviders = await getLanguageModelProviders();
 
-  const dyadApiKey = settings.providerSettings?.auto?.apiKey?.value;
+  
 
   // --- Handle specific provider ---
   const providerConfig = allProviders.find((p) => p.id === model.provider);
@@ -78,58 +78,58 @@ export async function getModelClient(
   }
 
   // 检查是否使用Dyad Pro（通过Dyad Engine）
-  if (dyadApiKey && settings.enableDyadPro) {
-    // 检查选择的提供商是否支持Dyad Pro（有gateway前缀）或使用本地engine
-    // 注意：某些提供商（如OpenAI）的gateway前缀是空字符串，所以这里检查null而不是truthy
-    if (providerConfig.gatewayPrefix != null || dyadEngineUrl) {
-      const enableSmartFilesContext = settings.enableProSmartFilesContextMode;
-      // 创建Dyad Engine提供商
-      const provider = createDyadEngine({
-        apiKey: dyadApiKey,
-        baseURL: dyadEngineUrl ?? "https://engine.dyad.sh/v1",
-        originalProviderId: model.provider,
-        dyadOptions: {
-          enableLazyEdits:
-            settings.selectedChatMode === "ask"
-              ? false
-              : settings.enableProLazyEditsMode &&
-                settings.proLazyEditsMode !== "v2",
-          enableSmartFilesContext,
-          enableWebSearch: settings.enableProWebSearch,
-        },
-        settings,
-      });
+  // if (dyadApiKey && settings.enableDyadPro) {
+  //   // 检查选择的提供商是否支持Dyad Pro（有gateway前缀）或使用本地engine
+  //   // 注意：某些提供商（如OpenAI）的gateway前缀是空字符串，所以这里检查null而不是truthy
+  //   if (providerConfig.gatewayPrefix != null || dyadEngineUrl) {
+  //     const enableSmartFilesContext = settings.enableProSmartFilesContextMode;
+  //     // 创建Dyad Engine提供商
+  //     const provider = createDyadEngine({
+  //       apiKey: dyadApiKey,
+  //       baseURL: dyadEngineUrl ?? "https://engine.dyad.sh/v1",
+  //       originalProviderId: model.provider,
+  //       dyadOptions: {
+  //         enableLazyEdits:
+  //           settings.selectedChatMode === "ask"
+  //             ? false
+  //             : settings.enableProLazyEditsMode &&
+  //               settings.proLazyEditsMode !== "v2",
+  //         enableSmartFilesContext,
+  //         enableWebSearch: settings.enableProWebSearch,
+  //       },
+  //       settings,
+  //     });
 
-      logger.info(
-        `\x1b[1;97;44m Using Dyad Pro API key for model: ${model.name} \x1b[0m`,
-      );
+  //     logger.info(
+  //       `\x1b[1;97;44m Using Dyad Pro API key for model: ${model.name} \x1b[0m`,
+  //     );
 
-      logger.info(
-        `\x1b[1;30;42m Using Dyad Pro engine: ${dyadEngineUrl ?? "<prod>"} \x1b[0m`,
-      );
+  //     logger.info(
+  //       `\x1b[1;30;42m Using Dyad Pro engine: ${dyadEngineUrl ?? "<prod>"} \x1b[0m`,
+  //     );
 
-      // 不使用免费变体（针对OpenRouter）
-      const modelName = model.name.split(":free")[0];
-      const autoModelClient = {
-        model: provider(`${providerConfig.gatewayPrefix || ""}${modelName}`),
-        builtinProviderId: model.provider,
-      };
+  //     // 不使用免费变体（针对OpenRouter）
+  //     const modelName = model.name.split(":free")[0];
+  //     const autoModelClient = {
+  //       model: provider(`${providerConfig.gatewayPrefix || ""}${modelName}`),
+  //       builtinProviderId: model.provider,
+  //     };
 
-      // 返回Dyad Engine模型客户端
-      return {
-        modelClient: autoModelClient,
-        isEngineEnabled: true,
-        isSmartContextEnabled: enableSmartFilesContext,
-      };
-    } else {
-      // Dyad Pro已启用，但提供商没有定义gateway前缀
-      // 回退到直接连接提供商
-      logger.warn(
-        `Dyad Pro enabled, but provider ${model.provider} does not have a gateway prefix defined. Falling back to direct provider connection.`,
-      );
-      // 如果缺少gateway前缀，回退到常规提供商逻辑
-    }
-  }
+  //     // 返回Dyad Engine模型客户端
+  //     return {
+  //       modelClient: autoModelClient,
+  //       isEngineEnabled: true,
+  //       isSmartContextEnabled: enableSmartFilesContext,
+  //     };
+  //   } else {
+  //     // Dyad Pro已启用，但提供商没有定义gateway前缀
+  //     // 回退到直接连接提供商
+  //     logger.warn(
+  //       `Dyad Pro enabled, but provider ${model.provider} does not have a gateway prefix defined. Falling back to direct provider connection.`,
+  //     );
+  //     // 如果缺少gateway前缀，回退到常规提供商逻辑
+  //   }
+  // }
   // Handle 'auto' provider by trying each model in AUTO_MODELS until one works
   if (model.provider === "auto") {
     if (model.name === "free") {
@@ -266,9 +266,9 @@ function getRegularModelClient(
         baseURL,
         googleAuthOptions: serviceAccountKey
           ? {
-              // Expecting the user to paste the full JSON of the service account key
-              credentials: JSON.parse(serviceAccountKey),
-            }
+            // Expecting the user to paste the full JSON of the service account key
+            credentials: JSON.parse(serviceAccountKey),
+          }
           : undefined,
       });
       return {

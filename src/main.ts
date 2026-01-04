@@ -9,7 +9,9 @@ import log from "electron-log";
 
 const logsDir = path.join(app.getAppPath(), "logs");
 log.transports.file.resolvePathFn = (variables) => {
-  return path.join(logsDir, variables.fileName || "app.log");
+  const now = new Date();
+  const dateStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+  return path.join(logsDir, `app-${dateStr}.log`);
 };
 
 log.transports.file.level =

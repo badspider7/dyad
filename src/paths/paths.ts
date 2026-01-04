@@ -10,6 +10,11 @@ export function getDyadAppPath(appPath: string): string {
   return path.join(os.homedir(), "dyad-apps", appPath);
 }
 
+export function getCustomPath(appPath: string): string {
+  const electron = getElectron();
+  return path.join(electron!.app.getPath("userData"), "dyad-apps", appPath);
+}
+
 export function getTypeScriptCachePath(): string {
   const electron = getElectron();
   return path.join(electron!.app.getPath("sessionData"), "typescript-cache");

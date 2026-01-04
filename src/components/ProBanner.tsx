@@ -13,8 +13,8 @@ import { useUserBudgetInfo } from "@/hooks/useUserBudgetInfo";
 import { Button } from "./ui/button";
 
 export function ProBanner() {
-  const { settings } = useSettings();
-  const { userBudget } = useUserBudgetInfo();
+  
+  
 
   const [selectedBanner] = useState<"ai" | "smart" | "turbo">(() => {
     const options = ["ai", "smart", "turbo"] as const;

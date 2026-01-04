@@ -14,7 +14,7 @@
   "scripts": {
     "clean": "rimraf out scaffold/node_modules",
     "start": "chcp 65001 && electron-forge start",
-    "start:debug": "chcp 65001 && electron-forge start  --inspect",
+    "start:debug": "chcp 65001 && electron-forge start  -- --inspect",
     "dev:engine": "cross-env DYAD_ENGINE_URL=http://localhost:8080/v1 npm start",
     "staging:engine": "cross-env DYAD_ENGINE_URL=https://staging---dyad-llm-engine-kq7pivehnq-uc.a.run.app/v1 npm start",
     "package": "npm run clean && electron-forge package",
@@ -32,13 +32,7 @@
     "prettier:check": "npx prettier --check .",
     "prettier": "npx prettier --write .",
     "presubmit": "npm run prettier:check && npm run lint",
-    "test": "vitest run",
-    "test:watch": "vitest",
-    "test:ui": "vitest --ui",
-    "extract-codebase": "ts-node scripts/extract-codebase.ts",
-    "pre:e2e": "cross-env E2E_TEST_BUILD=true npm run package",
-    "e2e": "playwright test",
-    "e2e:shard": "playwright test --shard"
+    "extract-codebase": "ts-node scripts/extract-codebase.ts"
   },
   "keywords": [],
   "author": {

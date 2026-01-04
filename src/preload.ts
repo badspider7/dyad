@@ -105,7 +105,7 @@ const validInvokeChannels = [
   "check-app-name",
   "rename-branch",
   "clear-session-data",
-  "get-user-budget",
+  // "get-user-budget",
   "get-context-paths",
   "set-context-paths",
   "get-app-upgrades",

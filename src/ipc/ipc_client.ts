@@ -1361,8 +1361,8 @@ export class IpcClient {
   }
 
   // Method to get user budget information
-  public async getUserBudget(): Promise<UserBudgetInfo | null> {
-    return this.ipcRenderer.invoke("get-user-budget");
+  public async getUserBudget() {
+    // return this.ipcRenderer.invoke("get-user-budget");
   }
 
   public async getChatContextResults(params: {
@@ -1466,7 +1466,7 @@ export class IpcClient {
   }
 
   public cancelHelpChat(sessionId: string): void {
-    this.ipcRenderer.invoke("help:chat:cancel", sessionId).catch(() => {});
+    this.ipcRenderer.invoke("help:chat:cancel", sessionId).catch(() => { });
   }
 
   // --- Visual Editing ---

@@ -205,3 +205,13 @@ export function generateCuteAppName(): string {
   const randomVerb = verbs[Math.floor(Math.random() * verbs.length)];
   return `${randomAdjective}-${randomAnimal}-${randomVerb}`;
 }
+
+
+/**
+ * Generate a  app name with a timestamp.
+ */
+export function generateAppNameWithTimestamp(): string {
+  const now = new Date();
+  const dateStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+  return `${dateStr}`;
+}
