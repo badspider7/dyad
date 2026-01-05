@@ -156,7 +156,8 @@ export function ChatInput({ chatId }: { chatId?: number }) {
     proposal.type === "code-proposal" &&
     messageId === lastMessage.id;
 
-  const { userBudget } = useUserBudgetInfo();
+  // const { userBudget } = useUserBudgetInfo();
+  const userBudget = true;
 
   useEffect(() => {
     if (error) {
@@ -373,7 +374,6 @@ export function ChatInput({ chatId }: { chatId?: number }) {
                 isRejecting={isRejecting}
               />
             )}
-
           {userBudget ? (
             <VisualEditingChangesDialog
               iframeRef={

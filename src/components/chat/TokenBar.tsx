@@ -32,7 +32,8 @@ export function TokenBar({ chatId }: TokenBarProps) {
   }
 
   const {
-    estimatedTotalTokens: totalTokens,
+    estimatedTotalTokens,
+    actualMaxTokens,
     messageHistoryTokens,
     codebaseTokens,
     mentionedAppsTokens,
@@ -41,6 +42,8 @@ export function TokenBar({ chatId }: TokenBarProps) {
     contextWindow,
   } = result;
 
+  // Use actual tokens from API if available, otherwise use estimated tokens
+  const totalTokens = actualMaxTokens ?? estimatedTotalTokens;
   const percentUsed = Math.min((totalTokens / contextWindow) * 100, 100);
 
   // Calculate widths for each token type

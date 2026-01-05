@@ -96,16 +96,6 @@ export async function handleLocalAgentStream(
 ): Promise<void> {
   const settings = readSettings();
 
-  // Check Pro status
-  if (!isDyadProEnabled(settings)) {
-    safeSend(event.sender, "chat:response:error", {
-      chatId: req.chatId,
-      error:
-        "Agent v2 requires Dyad Pro. Please enable Dyad Pro in Settings → Pro.",
-    });
-    return;
-  }
-
   // Get the chat and app
   const chat = await db.query.chats.findFirst({
     where: eq(chats.id, req.chatId),
@@ -191,13 +181,7 @@ export async function handleLocalAgentStream(
       .filter((msg) => msg.content || msg.aiMessagesJson)
       .flatMap((msg) => parseAiMessagesJson(msg));
 
-    // 打印发送给大模型的所有内容
-    logger.log("========== 发送给大模型的内容 ==========");
-    logger.log("System Prompt:", systemPrompt);
-    logger.log("Tools:", JSON.stringify(allTools, null, 2));
-    logger.log("Messages:", JSON.stringify(messageHistory, null, 2));
-    logger.log("=========================================");
-
+    // TODO: 最终入口
     // Stream the response
     const streamResult = streamText({
       model: modelClient.model,
@@ -235,14 +219,6 @@ export async function handleLocalAgentStream(
           cachedInputTokens ? (cachedInputTokens ?? 0) / (inputTokens ?? 0) : 0,
         );
 
-        // 打印大模型返回的完整响应
-        const responseText = await response.text;
-        logger.log("========== 大模型返回的完整响应 ==========");
-        logger.log("Response Text:", responseText);
-        logger.log("Response Finish Reason:", response.finishReason);
-        logger.log("Response Usage:", response.usage);
-        logger.log("Response:", JSON.stringify(response, null, 2));
-        logger.log("============================================");
 
         if (typeof totalTokens === "number") {
           await db
@@ -390,7 +366,7 @@ export async function handleLocalAgentStream(
     }
 
     // Deploy all Supabase functions if shared modules changed
-    await deployAllFunctionsIfNeeded(ctx);
+    // await deployAllFunctionsIfNeeded(ctx);
 
     // Commit all changes
     const commitResult = await commitAllChanges(ctx, ctx.chatSummary);

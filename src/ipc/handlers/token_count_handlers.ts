@@ -65,7 +65,7 @@ export function registerTokenCountHandlers() {
         aiRules: await readAiRules(getDyadAppPath(chat.app.path)),
         chatMode:
           settings.selectedChatMode === "agent" ||
-          settings.selectedChatMode === "local-agent"
+            settings.selectedChatMode === "local-agent"
             ? "build"
             : settings.selectedChatMode,
         enableTurboEditsV2: isTurboEditsV2Enabled(settings),
@@ -88,10 +88,11 @@ export function registerTokenCountHandlers() {
       const systemPromptTokens = estimateTokens(systemPrompt + supabaseContext);
 
       // Extract codebase information if app is associated with the chat
+      // Note: local-agent mode uses tools instead of codebase injection, so codebaseTokens is 0
       let codebaseInfo = "";
       let codebaseTokens = 0;
 
-      if (chat.app) {
+      if (chat.app && settings.selectedChatMode !== "local-agent") {
         const appPath = getDyadAppPath(chat.app.path);
         const { formattedOutput, files } = await extractCodebase({
           appPath,
@@ -112,6 +113,10 @@ export function registerTokenCountHandlers() {
         }
         logger.log(
           `Extracted codebase information from ${appPath}, tokens: ${codebaseTokens}`,
+        );
+      } else if (settings.selectedChatMode === "local-agent") {
+        logger.log(
+          `Local-agent mode detected, codebase tokens set to 0 (uses tools instead of codebase injection)`,
         );
       }
 

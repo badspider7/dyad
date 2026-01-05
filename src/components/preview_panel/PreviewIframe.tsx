@@ -179,7 +179,8 @@ export const PreviewIframe = ({ loading }: { loading: boolean }) => {
   const { streamMessage } = useStreamChat();
   const { routes: availableRoutes } = useParseRouter(selectedAppId);
   const { restartApp } = useRunApp();
-  const { userBudget } = useUserBudgetInfo();
+  // const { userBudget } = useUserBudgetInfo();
+  const userBudget = true;
   const isProMode = !!userBudget;
 
   // Navigation state
