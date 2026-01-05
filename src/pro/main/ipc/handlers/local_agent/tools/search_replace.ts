@@ -4,11 +4,11 @@ import { z } from "zod";
 import log from "electron-log";
 import { ToolDefinition, AgentContext, escapeXmlAttr } from "./types";
 import { safeJoin } from "@/ipc/utils/path_utils";
-import { deploySupabaseFunction } from "../../../../../../supabase_admin/supabase_management_client";
-import {
-  isServerFunction,
-  isSharedServerModule,
-} from "../../../../../../supabase_admin/supabase_utils";
+// import { deploySupabaseFunction } from "../../../../../../supabase_admin/supabase_management_client";
+// import {
+//   isServerFunction,
+//   isSharedServerModule,
+// } from "../../../../../../supabase_admin/supabase_utils";
 import { applySearchReplace } from "../../../../../../pro/main/ipc/processors/search_replace_processor";
 
 const readFile = fs.promises.readFile;
@@ -65,9 +65,9 @@ export const searchReplaceTool: ToolDefinition<
     const fullFilePath = safeJoin(ctx.appPath, args.path);
 
     // Track if this is a shared module
-    if (isSharedServerModule(args.path)) {
-      ctx.isSharedModulesChanged = true;
-    }
+    // if (isSharedServerModule(args.path)) {
+    //   ctx.isSharedModulesChanged = true;
+    // }
 
     if (!fs.existsSync(fullFilePath)) {
       throw new Error(`File does not exist: ${args.path}`);
@@ -88,22 +88,22 @@ export const searchReplaceTool: ToolDefinition<
     logger.log(`Successfully applied search-replace to: ${fullFilePath}`);
 
     // Deploy Supabase function if applicable
-    if (
-      ctx.supabaseProjectId &&
-      isServerFunction(args.path) &&
-      !ctx.isSharedModulesChanged
-    ) {
-      try {
-        await deploySupabaseFunction({
-          supabaseProjectId: ctx.supabaseProjectId,
-          functionName: path.basename(path.dirname(args.path)),
-          appPath: ctx.appPath,
-          organizationSlug: ctx.supabaseOrganizationSlug ?? null,
-        });
-      } catch (error) {
-        return `Search-replace applied, but failed to deploy Supabase function: ${error}`;
-      }
-    }
+    // if (
+    //   ctx.supabaseProjectId &&
+    //   isServerFunction(args.path) &&
+    //   !ctx.isSharedModulesChanged
+    // ) {
+    //   try {
+    //     await deploySupabaseFunction({
+    //       supabaseProjectId: ctx.supabaseProjectId,
+    //       functionName: path.basename(path.dirname(args.path)),
+    //       appPath: ctx.appPath,
+    //       organizationSlug: ctx.supabaseOrganizationSlug ?? null,
+    //     });
+    //   } catch (error) {
+    //     return `Search-replace applied, but failed to deploy Supabase function: ${error}`;
+    //   }
+    // }
 
     return `Successfully applied edits to ${args.path}`;
   },

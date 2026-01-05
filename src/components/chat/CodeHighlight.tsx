@@ -98,17 +98,17 @@ export const CodeHighlight = memo(
 
     return !isInline ? (
       <div
-        className="shiki not-prose relative [&_pre]:overflow-auto 
-      [&_pre]:rounded-lg [&_pre]:px-6 [&_pre]:py-7"
+        className={`shiki not-prose relative [&_pre]:overflow-auto 
+      [&_pre]:rounded-lg [&_pre]:px-6 [&_pre]:py-7 ${language ? 'py-7' : ''}`}
       >
         {language ? (
-          <div className="absolute top-2 left-2 right-2 text-xs flex justify-between">
+          <div className="absolute top-2 left-2 right-2 text-xs flex justify-between z-10 pointer-events-none">
             <span className="tracking-tighter text-muted-foreground/85">
               {language}
             </span>
             {code && (
               <button
-                className="mr-2 flex items-center text-xs cursor-pointer"
+                className="pointer-events-auto flex items-center text-xs cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800 px-2 py-1 rounded transition-colors"
                 onClick={handleCopy}
                 type="button"
               >

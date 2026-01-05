@@ -181,7 +181,6 @@ export async function handleLocalAgentStream(
       .filter((msg) => msg.content || msg.aiMessagesJson)
       .flatMap((msg) => parseAiMessagesJson(msg));
 
-    // TODO: 最终入口
     // Stream the response
     const streamResult = streamText({
       model: modelClient.model,

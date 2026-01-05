@@ -40,6 +40,7 @@ export function TokenBar({ chatId }: TokenBarProps) {
     systemPromptTokens,
     inputTokens,
     contextWindow,
+    cumulativeTokens,
   } = result;
 
   // Use actual tokens from API if available, otherwise use estimated tokens
@@ -59,13 +60,18 @@ export function TokenBar({ chatId }: TokenBarProps) {
         <Tooltip>
           <TooltipTrigger asChild>
             <div className="w-full">
-              <div className="flex justify-between mb-1 text-xs text-muted-foreground">
+              <div className="flex justify-between mb-1 text-sm text-muted-foreground">
                 <span>Tokens: {totalTokens.toLocaleString()}</span>
                 <span>
                   {Math.round(percentUsed)}% of{" "}
                   {(contextWindow / 1000).toFixed(0)}K
                 </span>
               </div>
+              {cumulativeTokens > 0 && (
+                <div className="flex justify-between mb-1 text-xs text-muted-foreground">
+                  <span>Total(All tokens used): {cumulativeTokens.toLocaleString()}</span>
+                </div>
+              )}
               <div className="w-full h-1.5 bg-muted rounded-full overflow-hidden flex">
                 {/* Message history tokens */}
                 <div
@@ -121,10 +127,16 @@ export function TokenBar({ chatId }: TokenBarProps) {
               </div>
               <div className="pt-1 border-t border-border">
                 <div className="flex justify-between font-medium">
-                  <span>Total</span>
+                  <span>Total(One Turn)</span>
                   <span>{totalTokens.toLocaleString()}</span>
                 </div>
               </div>
+              {cumulativeTokens > 0 && (
+                <div className="flex justify-between font-medium">
+                  <span>Total (All Requests)</span>
+                  <span>{cumulativeTokens.toLocaleString()}</span>
+                </div>
+              )}
             </div>
           </TooltipContent>
         </Tooltip>

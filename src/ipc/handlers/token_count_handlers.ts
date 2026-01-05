@@ -157,6 +157,15 @@ export function registerTokenCountHandlers() {
         .find((m) => m.role === "assistant");
       const actualMaxTokens = lastAssistantMessage?.maxTokensUsed ?? null;
 
+      // Calculate cumulative tokens (sum of all assistant messages' actual tokens)
+      let cumulativeTokens = 0;
+      const assistantMessages = chat.messages.filter((m) => m.role === "assistant");
+      for (const msg of assistantMessages) {
+        if (msg.maxTokensUsed) {
+          cumulativeTokens += msg.maxTokensUsed;
+        }
+      }
+
       return {
         estimatedTotalTokens: totalTokens,
         actualMaxTokens,
@@ -166,6 +175,7 @@ export function registerTokenCountHandlers() {
         inputTokens,
         systemPromptTokens,
         contextWindow: await getContextWindow(),
+        cumulativeTokens,
       };
     },
   );
