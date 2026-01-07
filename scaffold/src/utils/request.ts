@@ -7,6 +7,7 @@ const BaseURL = import.meta.env.PROD ? window.location.origin : import.meta.env.
  */
 export interface RequestOptions extends AxiosRequestConfig {
     timeout?: number;
+    baseURL?: string;
 }
 
 /**
@@ -47,10 +48,11 @@ class HttpClient {
         options: AxiosRequestConfig = {},
         requestOptions?: RequestOptions
     ): AxiosRequestConfig {
+        const baseURL = requestOptions?.baseURL ?? this.baseURL;
         return {
-            url: this.buildURL(url),
+            url: this.buildURL(url, baseURL),
             method: options.method,
-            baseURL: this.baseURL,
+            baseURL,
             headers: this.mergeHeaders(options.headers as Record<string, string>),
             timeout: requestOptions?.timeout || this.defaultTimeout,
             data: options.data,
@@ -62,9 +64,10 @@ class HttpClient {
     /**
      * 构建完整的请求 URL
      */
-    private buildURL(url: string): string {
-        if (this.baseURL && !url.startsWith('http')) {
-            return `${this.baseURL}${url.startsWith('/') ? '' : '/'}${url}`;
+    private buildURL(url: string, baseURL?: string): string {
+        const finalBaseURL = baseURL ?? this.baseURL;
+        if (finalBaseURL && !url.startsWith('http')) {
+            return `${finalBaseURL}${url.startsWith('/') ? '' : '/'}${url}`;
         }
         return url;
     }
