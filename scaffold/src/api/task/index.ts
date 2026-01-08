@@ -26,13 +26,14 @@ interface MissionParams {
     ]
 }
 
+
 interface MissionStep {
     map_name: string;  //地图名称
     target: number;  //点位id
     target_code: string; //点位id映射的点位别名，便于人类理解
     action: string; //任务步骤中到目标点之后要进行的动作, 来自Carly. 空表示到点不执行动作
     args: string; //动作的参数
-    state: number; //当前任务的状态，任务状态编号 0:排队中, 1:执行中,4:取消中, 5:正常完成, 6:取消完成, 7:出错完成，8：重置完成， 2，3暂时没有. 
+    state: number; //当前任务的状态，任务状态编号 0:排队中, 1:执行中,4:取消中, 5:正常完成, 6:取消完成, 7:出错完成，8：重置完成， 2，3暂时没有，都属于1的执行中. 
     is_load: boolean; // 小车是否载货
 }
 
@@ -139,5 +140,30 @@ export const getallRobotInfo = async (): Promise<RobotInfo[]> => {
  */
 export const cancelMission = async (MissionCommand: MissionCommand): Promise<MissionCommandResult> => {
     const response = await httpClient.post(`/api/v1/mscmds`, MissionCommand);
+    return response.data;
+}
+
+interface MissionListParams {
+    offset: number;//默认是0
+    limit: number;//默认是20
+    status?: string;//不传则返回所有状态的任务，running 是进行中，canceled是已取消，pending是待分配，finished 是已完成，error是出错，reset是重置完成
+}
+
+interface MissionListResponse {
+    err: number;//0为成功，其他为失败
+    msg: string;//错误信息
+    data: {
+        count: number;//总任务数
+        missions: MissionR[];//任务列表
+    }
+}
+/**
+ * 获取所有的任务信息,这个接口的baseUrl 端口必须使用 9000
+ */
+export const getAllMissions = async (params: MissionListParams): Promise<MissionListResponse> => {
+    const header = {
+        "Authorization": "Basic cm9vdDplMTBhZGMzOTQ5YmE1OWFiYmU1NmUwNTdmMjBmODgzZQ=="
+    }
+    const response = await httpClient.get(`/missions`, { params, headers: header });
     return response.data;
 }

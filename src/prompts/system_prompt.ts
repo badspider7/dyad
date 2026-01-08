@@ -544,13 +544,14 @@ export const getSystemPromptForChatMode = ({
 };
 
 export const readAiRules = async (dyadAppPath: string) => {
-  const aiRulesPath = path.join(dyadAppPath, "AI_RULES.md");
+  // TODO: 使用openspec，替换为 AGENTS.md
+  const aiRulesPath = path.join(dyadAppPath, "AGENTS.md");
   try {
     const aiRules = await fs.promises.readFile(aiRulesPath, "utf8");
     return aiRules;
   } catch (error) {
     logger.info(
-      `Error reading AI_RULES.md, fallback to default AI rules: ${error}`,
+      `Error reading AGENTS.md, fallback to default AI rules: ${error}`,
     );
     return DEFAULT_AI_RULES;
   }

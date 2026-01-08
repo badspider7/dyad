@@ -1,7 +1,6 @@
 //库区相关接口
 
 import { httpClient } from '@/utils/request';
-import type { LocationResponse } from '../location';
 
 interface Response<T> {
     status: number;
@@ -11,8 +10,8 @@ interface Response<T> {
 }
 
 interface PageParams {
-    page: number;
-    perPage: number;
+    page: number; //默认为1
+    perPage: number; //默认为100
 }
 
 interface AreaResponse {
@@ -32,13 +31,15 @@ interface AreaItem {
     code: string; //库区的编码
     is_disable: boolean; //是否禁用
     state: number; //库区状态
+    warehouse_name: string//仓库名称
 }
 
 
 
 interface AreaBody {
-    name?: string;  //库区名称
-    code?: string;  //库区编码
+    name: string;  //库区名称
+    code: string;  //库区编码
+    warehouse_name?: string; //仓库名称
 }
 
 /**
@@ -50,14 +51,36 @@ export const getAllAreas = async (params: PageParams, data: AreaBody): Promise<R
 }
 
 
-interface LocationBody {
-    area_name: string; //库区名称
-    state?: number; //库位状态
+/**
+ * 删除库区
+ */
+export const deleteArea = async (id: number): Promise<Response<AreaItem>> => {
+    const response = await httpClient.post(`/area/delete`, { id: id });
+    return response.data;
+}
+
+
+
+interface updateAreaBody {
+    id: number;//库区信息中返回的id
+    code: number; //库区编码
+    name: string; //库区名称
+    is_disable?: boolean; //是否禁用
+    warehouse_name?: string;//仓库名称
 }
 /**
- * 查询指定库区下的所有库位或指定状态的库位
+ * 更新库区信息
  */
-export const getAreaLocations = async (params: PageParams, data: LocationBody): Promise<Response<LocationResponse>> => {
-    const response = await httpClient.post(`/location/query`, data, { params });
+export const updateArea = async (data: updateAreaBody): Promise<Response<AreaItem>> => {
+    const response = await httpClient.post(`/area/update`, data);
+    return response.data;
+}
+
+
+/**
+ * 创建库区
+ */
+export const createArea = async (data: AreaBody): Promise<Response<AreaItem>> => {
+    const response = await httpClient.post(`/area/create`, data);
     return response.data;
 }
