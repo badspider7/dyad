@@ -27,6 +27,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "../ui/tooltip";
+import { ToolCallsDisplay } from "./ToolCallsDisplay";
 
 interface ChatMessageProps {
   message: Message;
@@ -142,6 +143,9 @@ const ChatMessage = ({ message, isLastMessage }: ChatMessageProps) => {
               {message.role === "assistant" ? (
                 <>
                   <DyadMarkdownParser content={message.content} />
+                  {message.aiMessagesJson && (
+                    <ToolCallsDisplay aiMessagesJson={message.aiMessagesJson} />
+                  )}
                   {isLastMessage && isStreaming && (
                     <div className="mt-4 ml-4 relative w-5 h-5 animate-spin">
                       <div className="absolute top-0 left-1/2 transform -translate-x-1/2 w-2 h-2 bg-(--primary) dark:bg-blue-500 rounded-full"></div>

@@ -42,11 +42,15 @@ interface AreaBody {
     warehouse_name?: string; //仓库名称
 }
 
+
+// 记得修改为正确的baseUrl
+const baseURL = window.location.origin;
+
 /**
  * 查询所有库区或指定库区
  */
 export const getAllAreas = async (params: PageParams, data: AreaBody): Promise<Response<AreaResponse>> => {
-    const response = await httpClient.post('/area/query', data, { params });
+    const response = await httpClient.post('/area/query', data, { params, baseURL: `${baseURL}` });
     return response.data;
 }
 
@@ -55,7 +59,7 @@ export const getAllAreas = async (params: PageParams, data: AreaBody): Promise<R
  * 删除库区
  */
 export const deleteArea = async (id: number): Promise<Response<AreaItem>> => {
-    const response = await httpClient.post(`/area/delete`, { id: id });
+    const response = await httpClient.post(`/area/delete`, { id: id }, { baseURL: `${baseURL}` });
     return response.data;
 }
 
@@ -72,7 +76,7 @@ interface updateAreaBody {
  * 更新库区信息
  */
 export const updateArea = async (data: updateAreaBody): Promise<Response<AreaItem>> => {
-    const response = await httpClient.post(`/area/update`, data);
+    const response = await httpClient.post(`/area/update`, data, { baseURL: `${baseURL}` });
     return response.data;
 }
 
@@ -81,6 +85,6 @@ export const updateArea = async (data: updateAreaBody): Promise<Response<AreaIte
  * 创建库区
  */
 export const createArea = async (data: AreaBody): Promise<Response<AreaItem>> => {
-    const response = await httpClient.post(`/area/create`, data);
+    const response = await httpClient.post(`/area/create`, data, { baseURL: `${baseURL}` });
     return response.data;
 }

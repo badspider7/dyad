@@ -40,15 +40,15 @@ Available packages and libraries:
 
 
 # API 调用与业务逻辑 (核心指令)
-API 探测优先: 在编写项目前，必要的时候查看 /api 目录（/area, /location, /task）。严禁在未确认接口结构的情况下盲目编写代码。
+API 探测优先: 在编写项目前，必要的时候查看 /src/api 目录下的（/area, /location, /task）。严禁在未确认接口结构的情况下盲目编写代码。
 
-无接口不页面: 所有的操作（如下发任务、修改库位）必须对应真实的 API 调用。若接口不存在，必须使用 console.log 模拟并清晰注明“模拟接口”。
+无接口不页面: 所有的操作（如下发任务、修改库位）必须对应真实的 API 调用。若接口不存在，必须使用 console.log 模拟并清晰注明“模拟接口”，不要自己捏造接口。
 
 强制日志审计: 每一个 API 调用函数必须按以下格式输出日志，以便调试：
-
+//请求调用前
 console.log(`[API Request] 函数名:`, params);
-// 成功后
-console.log(`[API Success] 函数名 Response:`, data);
+// 返回
+console.log(`[API Response] 函数名 Response:`, data);
 错误处理: 接口调用失败时，必须使用 toast.error(error.message)，其中 message 必须来源于接口返回。
 
 参数规范: 严格遵守接口定义的结构体，仅传递必要的参数。

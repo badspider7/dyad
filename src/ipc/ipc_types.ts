@@ -85,6 +85,19 @@ export interface Message {
   requestId?: string | null;
   totalTokens?: number | null;
   model?: string | null;
+  aiMessagesJson?: {
+    messages: Array<{
+      role: string;
+      content: string | Array<any>;
+      toolCalls?: Array<{
+        type: string;
+        toolCallId: string;
+        toolName: string;
+        args: any;
+      }>;
+    }>;
+    sdkVersion: string;
+  } | null;
 }
 
 export interface Chat {

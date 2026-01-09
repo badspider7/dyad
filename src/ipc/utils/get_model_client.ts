@@ -234,7 +234,7 @@ function getRegularModelClient(
       const provider = createOpenRouter({ apiKey });
       return {
         modelClient: {
-          model: provider(model.name),
+          model: provider(model.name, { usage: { include: true } }),
           builtinProviderId: providerId,
         },
         backupModelClients: [],

@@ -12,6 +12,12 @@ import { httpClient } from '@/utils/request';
 //      "msg": "这是发生错误的详细信息"
 // }
 
+// 记得修改为正确的baseUrl
+const baseURL = window.location.hostname;
+
+const baseURL9000 = `http://${baseURL}:9000`;
+const baseURL8858 = `http://${baseURL}:8858`;
+
 interface MissionParams {
     ref_uuid?: string;  //创建任务时可选的任务uuid，必须唯一
     src?: string;  //创建任务时可选的任务来源
@@ -30,7 +36,7 @@ interface MissionParams {
 interface MissionStep {
     map_name: string;  //地图名称
     target: number;  //点位id
-    target_code: string; //点位id映射的点位别名，便于人类理解
+    target_code: string; //点位id映射的点位别名，便于人类理解,如果接口返回中没有这个字段，就使用target的值进行显示
     action: string; //任务步骤中到目标点之后要进行的动作, 来自Carly. 空表示到点不执行动作
     args: string; //动作的参数
     state: number; //当前任务的状态，任务状态编号 0:排队中, 1:执行中,4:取消中, 5:正常完成, 6:取消完成, 7:出错完成，8：重置完成， 2，3暂时没有，都属于1的执行中. 
@@ -113,7 +119,7 @@ interface MissionCommandResult {
  * }
  */
 export const sendMission = async (task: MissionParams): Promise<MissionR> => {
-    const response = await httpClient.post('/api/v1/missions', task);
+    const response = await httpClient.post('/api/v1/missions', task, { baseURL: `${baseURL8858}` });
     return response.data;
 }
 
@@ -122,7 +128,7 @@ export const sendMission = async (task: MissionParams): Promise<MissionR> => {
  * 获取单台小车信息
  */
 export const getRobotInfo = async (robot_id: number): Promise<RobotInfo> => {
-    const response = await httpClient.get(`/api/v1/robots/${robot_id}`);
+    const response = await httpClient.get(`/api/v1/robots/${robot_id}`, { baseURL: `${baseURL8858}` });
     return response.data;
 }
 
@@ -130,7 +136,7 @@ export const getRobotInfo = async (robot_id: number): Promise<RobotInfo> => {
  * 获取全部小车的信息
  */
 export const getallRobotInfo = async (): Promise<RobotInfo[]> => {
-    const response = await httpClient.get(`/api/v1/robots`);
+    const response = await httpClient.get(`/api/v1/robots`, { baseURL: `${baseURL8858}` });
     return response.data;
 }
 
@@ -139,7 +145,7 @@ export const getallRobotInfo = async (): Promise<RobotInfo[]> => {
  * 取消任务
  */
 export const cancelMission = async (MissionCommand: MissionCommand): Promise<MissionCommandResult> => {
-    const response = await httpClient.post(`/api/v1/mscmds`, MissionCommand);
+    const response = await httpClient.post(`/api/v1/mscmds`, MissionCommand, { baseURL: `${baseURL8858}` });
     return response.data;
 }
 
@@ -161,9 +167,9 @@ interface MissionListResponse {
  * 获取所有的任务信息,这个接口的baseUrl 端口必须使用 9000
  */
 export const getAllMissions = async (params: MissionListParams): Promise<MissionListResponse> => {
-    const header = {
+    const headers = {
         "Authorization": "Basic cm9vdDplMTBhZGMzOTQ5YmE1OWFiYmU1NmUwNTdmMjBmODgzZQ=="
     }
-    const response = await httpClient.get(`/missions`, { params, headers: header });
+    const response = await httpClient.get(`/missions`, params, { headers, baseURL: `${baseURL9000}9000` });
     return response.data;
 }
